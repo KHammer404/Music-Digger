@@ -1,0 +1,91 @@
+{
+  "@@locale": "en",
+  "appTitle": "Music Digger",
+  "home": "Home",
+  "search": "Search",
+  "library": "Library",
+  "settings": "Settings",
+  "searchHint": "Search artists, tracks...",
+  "noResults": "No results found",
+  "playlists": "Playlists",
+  "favorites": "Favorites",
+  "history": "History",
+  "noPlaylists": "No playlists yet",
+  "noFavorites": "No favorites yet",
+  "noHistory": "No history yet",
+  "language": "Language",
+  "theme": "Theme",
+  "version": "Version",
+  "platforms": "Platforms",
+  "tracks": "Tracks",
+  "artists": "Artists",
+  "discover": "Discover",
+  "discoverSubtitle": "Artists you might like",
+  "similarArtists": "Similar Artists",
+  "trending": "Trending",
+  "digDeeper": "Dig Deeper",
+  "digDeeperSubtitle": "Find hidden tracks across YouTube, Spotify, NicoNico, and 5 more platforms",
+  "searchArtists": "Search Artists",
+  "startSearching": "Start Searching",
+  "retry": "Retry",
+  "couldNotLoad": "Could not load recommendations",
+  "newPlaylist": "New Playlist",
+  "playlistName": "Playlist name",
+  "cancel": "Cancel",
+  "create": "Create",
+  "delete": "Delete",
+  "importPlaylist": "Import Playlist",
+  "exportJson": "Export JSON",
+  "exportCsv": "Export CSV",
+  "exportM3u": "Export M3U",
+  "pasteJsonTracks": "Paste JSON tracks",
+  "import_": "Import",
+  "goBack": "Go Back",
+  "failedToLoadArtist": "Failed to load artist",
+  "tapMenuToCreateOrImport": "Tap menu to create or import",
+  "networkError": "Network error. Please check your connection.",
+  "timeout": "Request timed out. Please try again.",
+  "unknownError": "Something went wrong. Please try again.",
+  "loading": "Loading...",
+  "nTracksCount": "{count} tracks",
+  "@nTracksCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "similarTo": "Similar to {name}",
+  "@similarTo": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "exportedAs": "{name} exported as {format}",
+  "@exportedAs": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "format": {"type": "String"}
+    }
+  },
+  "importedTracks": "Imported {count} tracks to \"{name}\"",
+  "@importedTracks": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "name": {"type": "String"}
+    }
+  },
+  "offline": "You are offline",
+  "retryAction": "Retry",
+  "checkConnection": "Please check your internet connection and try again",
+  "serverSlow": "Server is responding slowly",
+  "tryAgainLater": "Please try again later",
+  "serverError": "Server is experiencing issues",
+  "notFound": "Requested item not found",
+  "dataError": "Error processing data",
+  "unknownErrorOccurred": "An unknown error occurred",
+  "errorOccurred": "An error occurred",
+  "basedOnRecent": "Based on your recent activity",
+  "searchForArtistsOrTracks": "Search for artists or tracks",
+  "trySearchExample": "Try \"ななひら\", \"Nanahira\", or \"나나히라\"",
+  "discoverMusicAcross": "Discover music across 8 platforms",
+  "findHiddenTracks": "Find hidden tracks across YouTube, Spotify, NicoNico, and 5 more platforms"
+}

@@ -1,0 +1,91 @@
+{
+  "@@locale": "ja",
+  "appTitle": "ミュージックディガー",
+  "home": "ホーム",
+  "search": "検索",
+  "library": "ライブラリ",
+  "settings": "設定",
+  "searchHint": "アーティスト、トラックを検索...",
+  "noResults": "結果なし",
+  "playlists": "プレイリスト",
+  "favorites": "お気に入り",
+  "history": "履歴",
+  "noPlaylists": "プレイリストはまだありません",
+  "noFavorites": "お気に入りはまだありません",
+  "noHistory": "履歴はまだありません",
+  "language": "言語",
+  "theme": "テーマ",
+  "version": "バージョン",
+  "platforms": "プラットフォーム",
+  "tracks": "トラック",
+  "artists": "アーティスト",
+  "discover": "ディスカバー",
+  "discoverSubtitle": "おすすめのアーティスト",
+  "similarArtists": "似ているアーティスト",
+  "trending": "トレンド",
+  "digDeeper": "もっと深く掘る",
+  "digDeeperSubtitle": "YouTube、Spotify、ニコニコなど8つのプラットフォームから隠れたトラックを発見",
+  "searchArtists": "アーティストを検索",
+  "startSearching": "検索を始める",
+  "retry": "再試行",
+  "couldNotLoad": "おすすめを読み込めませんでした",
+  "newPlaylist": "新規プレイリスト",
+  "playlistName": "プレイリスト名",
+  "cancel": "キャンセル",
+  "create": "作成",
+  "delete": "削除",
+  "importPlaylist": "プレイリストをインポート",
+  "exportJson": "JSONエクスポート",
+  "exportCsv": "CSVエクスポート",
+  "exportM3u": "M3Uエクスポート",
+  "pasteJsonTracks": "JSONトラックを貼り付け",
+  "import_": "インポート",
+  "goBack": "戻る",
+  "failedToLoadArtist": "アーティストの読み込みに失敗しました",
+  "tapMenuToCreateOrImport": "メニューから作成またはインポート",
+  "networkError": "ネットワークエラー。接続を確認してください。",
+  "timeout": "リクエストがタイムアウトしました。再試行してください。",
+  "unknownError": "問題が発生しました。再試行してください。",
+  "loading": "読み込み中...",
+  "nTracksCount": "{count}曲",
+  "@nTracksCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "similarTo": "{name}に似たアーティスト",
+  "@similarTo": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "exportedAs": "{name}を{format}でエクスポートしました",
+  "@exportedAs": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "format": {"type": "String"}
+    }
+  },
+  "importedTracks": "「{name}」に{count}曲をインポートしました",
+  "@importedTracks": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "name": {"type": "String"}
+    }
+  },
+  "offline": "オフラインです",
+  "retryAction": "再試行",
+  "checkConnection": "インターネット接続を確認して再試行してください",
+  "serverSlow": "サーバーの応答が遅いです",
+  "tryAgainLater": "しばらくしてから再試行してください",
+  "serverError": "サーバーに一時的な問題があります",
+  "notFound": "リクエストされた項目が見つかりません",
+  "dataError": "データの処理中にエラーが発生しました",
+  "unknownErrorOccurred": "不明なエラーが発生しました",
+  "errorOccurred": "エラーが発生しました",
+  "basedOnRecent": "最近のアクティビティに基づく",
+  "searchForArtistsOrTracks": "アーティストまたはトラックを検索",
+  "trySearchExample": "\"ななひら\"、\"Nanahira\"、\"나나히라\"で検索してみてください",
+  "discoverMusicAcross": "8つのプラットフォームで音楽を探索",
+  "findHiddenTracks": "YouTube、Spotify、ニコニコなど8つのプラットフォームから隠れたトラックを発見"
+}

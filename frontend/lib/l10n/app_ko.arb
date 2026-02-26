@@ -1,0 +1,91 @@
+{
+  "@@locale": "ko",
+  "appTitle": "뮤직 디거",
+  "home": "홈",
+  "search": "검색",
+  "library": "라이브러리",
+  "settings": "설정",
+  "searchHint": "아티스트, 트랙 검색...",
+  "noResults": "결과 없음",
+  "playlists": "플레이리스트",
+  "favorites": "즐겨찾기",
+  "history": "히스토리",
+  "noPlaylists": "플레이리스트가 없습니다",
+  "noFavorites": "즐겨찾기가 없습니다",
+  "noHistory": "히스토리가 없습니다",
+  "language": "언어",
+  "theme": "테마",
+  "version": "버전",
+  "platforms": "플랫폼",
+  "tracks": "트랙",
+  "artists": "아티스트",
+  "discover": "디스커버",
+  "discoverSubtitle": "좋아할 만한 아티스트",
+  "similarArtists": "비슷한 아티스트",
+  "trending": "트렌딩",
+  "digDeeper": "더 깊이 파기",
+  "digDeeperSubtitle": "YouTube, Spotify, NicoNico 등 8개 플랫폼에서 숨겨진 트랙을 찾아보세요",
+  "searchArtists": "아티스트 검색",
+  "startSearching": "검색 시작",
+  "retry": "재시도",
+  "couldNotLoad": "추천을 불러올 수 없습니다",
+  "newPlaylist": "새 플레이리스트",
+  "playlistName": "플레이리스트 이름",
+  "cancel": "취소",
+  "create": "만들기",
+  "delete": "삭제",
+  "importPlaylist": "플레이리스트 가져오기",
+  "exportJson": "JSON 내보내기",
+  "exportCsv": "CSV 내보내기",
+  "exportM3u": "M3U 내보내기",
+  "pasteJsonTracks": "JSON 트랙 붙여넣기",
+  "import_": "가져오기",
+  "goBack": "뒤로",
+  "failedToLoadArtist": "아티스트를 불러오지 못했습니다",
+  "tapMenuToCreateOrImport": "메뉴에서 만들기 또는 가져오기",
+  "networkError": "네트워크 오류. 연결을 확인해주세요.",
+  "timeout": "요청 시간 초과. 다시 시도해주세요.",
+  "unknownError": "문제가 발생했습니다. 다시 시도해주세요.",
+  "loading": "로딩 중...",
+  "nTracksCount": "{count}곡",
+  "@nTracksCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "similarTo": "{name}과(와) 비슷한 아티스트",
+  "@similarTo": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "exportedAs": "{name}을(를) {format}으로 내보냈습니다",
+  "@exportedAs": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "format": {"type": "String"}
+    }
+  },
+  "importedTracks": "\"{name}\"에 {count}곡을 가져왔습니다",
+  "@importedTracks": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "name": {"type": "String"}
+    }
+  },
+  "offline": "오프라인 상태입니다",
+  "retryAction": "다시 시도",
+  "checkConnection": "인터넷 연결을 확인하고 다시 시도해주세요",
+  "serverSlow": "서버 응답이 느립니다",
+  "tryAgainLater": "잠시 후 다시 시도해주세요",
+  "serverError": "서버에 일시적인 문제가 있습니다",
+  "notFound": "요청한 항목을 찾을 수 없습니다",
+  "dataError": "데이터를 처리하는 중 오류가 발생했습니다",
+  "unknownErrorOccurred": "알 수 없는 오류가 발생했습니다",
+  "errorOccurred": "오류가 발생했습니다",
+  "basedOnRecent": "최근 활동 기반",
+  "searchForArtistsOrTracks": "아티스트 또는 트랙을 검색하세요",
+  "trySearchExample": "\"ななひら\", \"Nanahira\", \"나나히라\" 검색해보세요",
+  "discoverMusicAcross": "8개 플랫폼에서 음악 탐색",
+  "findHiddenTracks": "YouTube, Spotify, NicoNico 등 8개 플랫폼에서 숨겨진 트랙을 찾아보세요"
+}
