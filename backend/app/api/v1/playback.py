@@ -1,18 +1,25 @@
+import logging
+
 from fastapi import APIRouter, HTTPException
 
 from app.api.v1.deps import get_aggregation_service
 from app.services.playback_resolver import PlaybackResolverService
+from app.sources.bandcamp import BandcampAdapter
+from app.sources.soundcloud import SoundCloudAdapter
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 _resolver = PlaybackResolverService()
 
 
-@router.get("/{platform}/{track_id}")
+@router.get("/{platform}/{track_id:path}")
 async def get_playback_info(platform: str, track_id: str):
     """Get playback info for a specific track on a specific platform.
 
     Returns the engine type, URLs, and whether authentication is required.
+    For SoundCloud/Bandcamp, resolves the actual audio stream URL.
     """
     service = get_aggregation_service()
 
@@ -26,23 +33,31 @@ async def get_playback_info(platform: str, track_id: str):
     if not adapter:
         raise HTTPException(status_code=400, detail=f"Unknown platform: {platform}")
 
-    # Search for the specific track
-    tracks = await adapter.search_tracks(track_id, limit=1)
-    if not tracks:
-        # Create a minimal source track from the ID
-        from app.sources.base import SourceTrack
-        source = SourceTrack(
-            platform=platform,
-            platform_id=track_id,
-            title="",
-            artist_name="",
-            url=_build_url(platform, track_id),
-            is_playable=True,
-        )
-    else:
-        source = tracks[0]
+    # Create a minimal source track from the ID
+    from app.sources.base import SourceTrack
+    source = SourceTrack(
+        platform=platform,
+        platform_id=track_id,
+        title="",
+        artist_name="",
+        url=_build_url(platform, track_id),
+        is_playable=True,
+    )
 
     info = _resolver.resolve(source)
+
+    # Resolve actual stream URLs for supported platforms
+    stream_url = None
+    if isinstance(adapter, SoundCloudAdapter):
+        stream_url = await adapter.get_stream_url(track_id)
+    elif isinstance(adapter, BandcampAdapter):
+        stream_url = await adapter.get_stream_url(track_id)
+
+    if stream_url:
+        info.stream_url = stream_url
+        logger.info("Resolved stream URL for %s/%s", platform, track_id)
+    else:
+        logger.warning("Failed to resolve stream URL for %s/%s", platform, track_id)
 
     return {
         "platform": info.platform,

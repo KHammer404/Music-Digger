@@ -17,7 +17,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     try {
       // Get discovery/trending artists
       final resp = await _apiClient.get('/recommendations/discover', queryParameters: {
-        'limit': 30,
+        'limit': 100,
       });
       final data = resp.data as Map<String, dynamic>;
       final discoveries = (data['discoveries'] as List)

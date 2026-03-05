@@ -41,10 +41,16 @@ dependencies:
   # Audio Playback
   just_audio: ^0.9.43
   just_audio_background: ^0.0.1-beta.15
+  just_audio_media_kit: ^2.0.6
+  media_kit_libs_linux: any
   audio_service: ^0.18.17
 
   # YouTube
   youtube_explode_dart: ^2.3.8
+
+  # User / Persistence
+  shared_preferences: ^2.3.5
+  uuid: ^4.5.1
 
   # Intl
   intl: any

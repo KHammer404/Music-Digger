@@ -1,5 +1,7 @@
 """Bandcamp source adapter — indie/doujin music via web scraping."""
 
+import json
+import logging
 import re
 
 import httpx
@@ -8,6 +10,8 @@ from bs4 import BeautifulSoup
 from app.cache.redis_cache import cache_get, cache_set
 from app.matching.name_normalizer import normalize_name
 from app.sources.base import SourceAdapter, SourceArtist, SourceTrack
+
+logger = logging.getLogger(__name__)
 
 BANDCAMP_SEARCH = "https://bandcamp.com/search"
 SEARCH_CACHE_TTL = 3600
@@ -47,7 +51,8 @@ class BandcampAdapter(SourceAdapter):
             return []
 
         soup = BeautifulSoup(resp.text, "html.parser")
-        results = soup.select(".searchresult.band")
+        results = soup.select(".searchresult.data-search")
+        logger.info("Bandcamp artist search '%s': %d raw results", query, len(results))
 
         artists = []
         for item in results[:limit]:
@@ -87,7 +92,8 @@ class BandcampAdapter(SourceAdapter):
             return []
 
         soup = BeautifulSoup(resp.text, "html.parser")
-        results = soup.select(".searchresult.track")
+        results = soup.select(".searchresult.data-search")
+        logger.info("Bandcamp track search '%s': %d raw results", query, len(results))
 
         tracks = []
         for item in results[:limit]:
@@ -198,6 +204,76 @@ class BandcampAdapter(SourceAdapter):
 
         await cache_set(cache_key, [t.__dict__ for t in tracks], SEARCH_CACHE_TTL)
         return tracks
+
+    async def get_stream_url(self, track_url: str) -> str | None:
+        """Extract direct mp3-128 stream URL from a Bandcamp track page.
+
+        Parses the TralbumData JSON embedded in the page HTML.
+        track_url can be a full URL or a platform_id (domain/path).
+        """
+        if not track_url.startswith("http"):
+            track_url = f"https://{track_url}"
+
+        cache_key = f"bc:stream:{track_url}"
+        cached = await cache_get(cache_key)
+        if cached:
+            return cached
+
+        try:
+            resp = await self._client.get(track_url)
+            resp.raise_for_status()
+        except httpx.HTTPError as e:
+            logger.error("Bandcamp: failed to fetch track page %s: %s", track_url, e)
+            return None
+
+        # Extract TralbumData JSON from script tag
+        match = re.search(
+            r'data-tralbum="([^"]*)"', resp.text
+        )
+        tralbum_data = None
+        if match:
+            # HTML-encoded JSON in data attribute
+            import html
+            try:
+                tralbum_data = json.loads(html.unescape(match.group(1)))
+            except (json.JSONDecodeError, TypeError):
+                pass
+
+        if not tralbum_data:
+            # Fallback: look for TralbumData in inline script
+            script_match = re.search(
+                r'var\s+TralbumData\s*=\s*(\{.*?\})\s*;', resp.text, re.DOTALL
+            )
+            if script_match:
+                try:
+                    # Clean JS object → JSON (handle trailing commas)
+                    raw = script_match.group(1)
+                    raw = re.sub(r',\s*}', '}', raw)
+                    raw = re.sub(r',\s*]', ']', raw)
+                    tralbum_data = json.loads(raw)
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+        if not tralbum_data:
+            logger.warning("Bandcamp: TralbumData not found for %s", track_url)
+            return None
+
+        trackinfo = tralbum_data.get("trackinfo", [])
+        if not trackinfo:
+            logger.warning("Bandcamp: no trackinfo for %s", track_url)
+            return None
+
+        file_info = trackinfo[0].get("file")
+        if not file_info:
+            logger.warning("Bandcamp: no file info for %s", track_url)
+            return None
+
+        stream_url = file_info.get("mp3-128")
+        if stream_url:
+            # Cache for 30 minutes
+            await cache_set(cache_key, stream_url, 1800)
+
+        return stream_url
 
     async def is_available(self) -> bool:
         return True

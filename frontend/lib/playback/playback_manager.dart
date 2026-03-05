@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 
 import 'package:just_audio/just_audio.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+import '../core/di/service_locator.dart';
+import '../core/network/api_client.dart';
 import '../domain/entities/track.dart';
 
 enum PlaybackEngine { directAudio, youtube, webview, none }
@@ -16,6 +19,7 @@ class PlaybackManager {
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   final YoutubeExplode _youtubeExplode = YoutubeExplode();
+  ApiClient get _apiClient => getIt<ApiClient>();
 
   Track? _currentTrack;
   final List<Track> _queue = [];
@@ -60,11 +64,52 @@ class PlaybackManager {
       case PlaybackEngine.youtube:
         await _playYouTube(source.platformTrackId);
       case PlaybackEngine.directAudio:
-        await _playDirect(source.url);
+        await _playWithStreamResolve(source);
       case PlaybackEngine.webview:
       case PlaybackEngine.none:
         // WebView and non-playable handled at UI level
         break;
+    }
+  }
+
+  /// For SoundCloud/Bandcamp, resolve the actual stream URL via backend.
+  /// Falls back to direct URL for other platforms.
+  Future<void> _playWithStreamResolve(TrackSource source) async {
+    final needsResolve = source.platform == 'soundcloud' ||
+        source.platform == 'bandcamp';
+
+    if (!needsResolve) {
+      await _playDirect(source.url);
+      return;
+    }
+
+    try {
+      final response = await _apiClient.get(
+        '/playback/${source.platform}/${source.platformTrackId}',
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      final streamUrl = data['stream_url'] as String?;
+
+      if (streamUrl != null && streamUrl.isNotEmpty) {
+        dev.log(
+          '[Playback] Resolved stream URL for ${source.platform}/${source.platformTrackId}',
+          name: 'PlaybackManager',
+        );
+        await _playDirect(streamUrl);
+      } else {
+        dev.log(
+          '[Playback] No stream URL resolved, falling back to page URL',
+          name: 'PlaybackManager',
+        );
+        await _playDirect(source.url);
+      }
+    } catch (e) {
+      dev.log(
+        '[Playback] Stream resolve failed: $e, falling back to page URL',
+        name: 'PlaybackManager',
+      );
+      await _playDirect(source.url);
     }
   }
 

@@ -33,7 +33,7 @@ async def get_similar_artists(
 @router.get("/discover")
 async def discover(
     seeds: str = Query("", description="Comma-separated seed artist names"),
-    limit: int = Query(30, ge=1, le=50),
+    limit: int = Query(100, ge=1, le=1000),
     service: RecommendationService = Depends(get_recommendation_service),
 ):
     """Discover new artists based on seed artists (or trending if no seeds)."""

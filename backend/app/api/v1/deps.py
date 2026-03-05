@@ -17,13 +17,14 @@ from app.sources.youtube import YouTubeAdapter
 _vocadb = VocaDBAdapter()
 _lastfm = LastfmAdapter()
 _spotify = SpotifyAdapter()
+_youtube = YouTubeAdapter()
 
 
 @lru_cache
 def get_aggregation_service() -> AggregationService:
     """Create aggregation service with all 8 platform adapters."""
     adapters = [
-        YouTubeAdapter(),
+        _youtube,
         _vocadb,
         MusicBrainzAdapter(),
         _spotify,
@@ -43,4 +44,5 @@ def get_recommendation_service() -> RecommendationService:
         lastfm=_lastfm,
         spotify=_spotify,
         vocadb=_vocadb,
+        youtube=_youtube,
     )

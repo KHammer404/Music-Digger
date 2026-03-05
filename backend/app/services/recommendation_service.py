@@ -8,9 +8,20 @@ from app.sources.base import SourceArtist
 from app.sources.lastfm import LastfmAdapter
 from app.sources.spotify import SpotifyAdapter
 from app.sources.vocadb import VocaDBAdapter
+from app.sources.youtube import YouTubeAdapter
 
 SIMILAR_CACHE_TTL = 86400  # 24 hours
 DISCOVER_CACHE_TTL = 3600  # 1 hour
+
+# Last.fm returns this placeholder for all artists (no real images anymore)
+LASTFM_PLACEHOLDER = "2a96cbd8b46e442fc41c2b86b821562f"
+
+
+def _is_real_image(url: str | None) -> bool:
+    """Check if an image URL is a real image (not a Last.fm placeholder)."""
+    if not url:
+        return False
+    return LASTFM_PLACEHOLDER not in url
 
 
 class RecommendationService:
@@ -21,10 +32,12 @@ class RecommendationService:
         lastfm: LastfmAdapter,
         spotify: SpotifyAdapter,
         vocadb: VocaDBAdapter,
+        youtube: YouTubeAdapter | None = None,
     ):
         self._lastfm = lastfm
         self._spotify = spotify
         self._vocadb = vocadb
+        self._youtube = youtube
 
     async def get_similar_artists(
         self,
@@ -65,7 +78,7 @@ class RecommendationService:
                             match_score = artist.extra.get("match", 0) if artist.extra else 0
                             seen_names[normalized] = {
                                 "name": artist.name,
-                                "image_url": artist.image_url,
+                                "image_url": artist.image_url if _is_real_image(artist.image_url) else None,
                                 "platform": artist.platform,
                                 "platform_id": artist.platform_id,
                                 "url": artist.url,
@@ -153,7 +166,7 @@ class RecommendationService:
         await cache_set(cache_key, discoveries, DISCOVER_CACHE_TTL)
         return discoveries
 
-    async def _get_trending(self, limit: int = 30) -> list[dict]:
+    async def _get_trending(self, limit: int = 100) -> list[dict]:
         """Fallback: get trending/popular artists from Last.fm charts."""
         cache_key = f"rec:trending:{limit}"
         cached = await cache_get(cache_key)
@@ -173,6 +186,8 @@ class RecommendationService:
             for item in items:
                 images = item.get("image", [])
                 image_url = next((i.get("#text") for i in reversed(images) if i.get("#text")), None)
+                if not _is_real_image(image_url):
+                    image_url = None
                 trending.append({
                     "name": item.get("name", ""),
                     "image_url": image_url,
@@ -183,10 +198,50 @@ class RecommendationService:
                     "listeners": int(item.get("listeners", 0)),
                 })
 
+            # Enrich with Spotify images for artists missing images
+            await self._enrich_images(trending)
+
             await cache_set(cache_key, trending, DISCOVER_CACHE_TTL)
             return trending
         except Exception:
             return []
+
+    async def _enrich_images(self, artists: list[dict]) -> None:
+        """Fetch images from Spotify or YouTube for artists that have no image."""
+        needs_image = [a for a in artists if not a.get("image_url")]
+        if not needs_image:
+            return
+
+        async def _fetch_image(artist: dict) -> None:
+            name = artist.get("name", "")
+            # Check per-artist image cache first
+            img_cache_key = f"rec:img:{normalize_name(name)}"
+            cached_img = await cache_get(img_cache_key)
+            if cached_img:
+                artist["image_url"] = cached_img
+                return
+
+            # Try Spotify first
+            try:
+                results = await self._spotify.search_artists(name, limit=1)
+                if results and _is_real_image(results[0].image_url):
+                    artist["image_url"] = results[0].image_url
+                    await cache_set(img_cache_key, artist["image_url"], 86400)
+                    return
+            except Exception:
+                pass
+            # Fallback to YouTube channel thumbnail
+            if self._youtube:
+                try:
+                    results = await self._youtube.search_artists(name, limit=1)
+                    if results and results[0].image_url:
+                        artist["image_url"] = results[0].image_url
+                        await cache_set(img_cache_key, artist["image_url"], 86400)
+                        return
+                except Exception:
+                    pass
+
+        await asyncio.gather(*[_fetch_image(a) for a in needs_image])
 
     async def _lastfm_similar_by_name(self, artist_name: str, limit: int) -> list[SourceArtist]:
         """Search Last.fm for artist, then get similar."""
