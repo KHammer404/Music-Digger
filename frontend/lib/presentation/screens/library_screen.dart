@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/di/service_locator.dart';
 import '../../core/network/api_client.dart';
+import '../../core/services/user_service.dart';
 import '../blocs/export/export_bloc.dart';
 import '../blocs/export/export_event.dart';
 import '../blocs/export/export_state.dart';
@@ -19,7 +21,7 @@ class LibraryScreen extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) {
-            final bloc = LibraryBloc(getIt<ApiClient>(), 'anonymous');
+            final bloc = LibraryBloc(getIt<ApiClient>(), getIt<UserService>().userId);
             bloc.add(const LibraryLoadPlaylists());
             bloc.add(const LibraryLoadFavorites());
             bloc.add(const LibraryLoadHistory());
@@ -98,6 +100,8 @@ class _LibraryView extends StatelessWidget {
                     _showCreatePlaylistDialog(context);
                   } else if (value == 'import') {
                     _showImportDialog(context);
+                  } else if (value == 'import_platform') {
+                    context.push('/import-playlists');
                   }
                 },
                 itemBuilder: (context) => [
@@ -110,10 +114,18 @@ class _LibraryView extends StatelessWidget {
                     ),
                   ),
                   const PopupMenuItem(
+                    value: 'import_platform',
+                    child: ListTile(
+                      leading: Icon(Icons.cloud_download),
+                      title: Text('Import from Platform'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const PopupMenuItem(
                     value: 'import',
                     child: ListTile(
                       leading: Icon(Icons.file_download),
-                      title: Text('Import Playlist'),
+                      title: Text('Import from JSON'),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -235,7 +247,7 @@ class _LibraryView extends StatelessWidget {
                 context.read<ExportBloc>().add(
                   ImportPlaylistFromJson(
                     name: nameController.text,
-                    userId: 'anonymous',
+                    userId: getIt<UserService>().userId,
                     tracks: tracks,
                   ),
                 );

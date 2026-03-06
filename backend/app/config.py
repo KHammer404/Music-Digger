@@ -24,10 +24,20 @@ class Settings(BaseSettings):
     spotify_client_id: str = ""
     spotify_client_secret: str = ""
     youtube_api_key: str = ""
+    youtube_client_id: str = ""
+    youtube_client_secret: str = ""
     lastfm_api_key: str = ""
     lastfm_api_secret: str = ""
     niconico_email: str = ""
     niconico_password: str = ""
+
+    # Tidal OAuth
+    tidal_client_id: str = ""
+    tidal_client_secret: str = ""
+
+    # OAuth
+    oauth_redirect_base: str = "http://localhost:8000/api/v1/auth"
+    fernet_key: str = ""  # generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

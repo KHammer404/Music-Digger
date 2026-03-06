@@ -29,9 +29,16 @@ class ConnectivityService {
 
   Future<bool> checkNow() async {
     try {
-      final result = await InternetAddress.lookup('dns.google')
-          .timeout(const Duration(seconds: 3));
-      _setOnline(result.isNotEmpty && result[0].rawAddress.isNotEmpty);
+      // Try local backend first, then fall back to DNS lookup
+      final client = HttpClient();
+      client.connectionTimeout = const Duration(seconds: 3);
+      final baseHost = Platform.isAndroid ? '10.0.2.2' : 'localhost';
+      final request = await client.getUrl(
+        Uri.parse('http://$baseHost:8000/api/v1/health'),
+      );
+      final response = await request.close().timeout(const Duration(seconds: 3));
+      _setOnline(response.statusCode == 200);
+      client.close();
     } on SocketException {
       _setOnline(false);
     } on TimeoutException {

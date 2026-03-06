@@ -55,7 +55,11 @@ async def list_history(
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(DiggingHistory).where(DiggingHistory.user_id == uuid.UUID(user_id))
+    try:
+        uid = uuid.UUID(user_id)
+    except ValueError:
+        return []
+    query = select(DiggingHistory).where(DiggingHistory.user_id == uid)
     if action:
         query = query.where(DiggingHistory.action == action)
     query = query.order_by(DiggingHistory.created_at.desc()).offset(offset).limit(limit)

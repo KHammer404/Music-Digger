@@ -1,8 +1,11 @@
 """Aggregation service — searches across all available sources in parallel."""
 
 import asyncio
+import logging
 
 from app.matching.alias_resolver import AliasResolver
+
+logger = logging.getLogger(__name__)
 from app.matching.track_fingerprint import TrackFingerprint
 from app.services.dedup_service import DeduplicationService
 from app.sources.base import SourceAdapter, SourceArtist, SourceTrack
@@ -33,9 +36,12 @@ class AggregationService:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         all_artists = []
-        for result in results:
+        for adapter, result in zip(adapters, results):
             if isinstance(result, list):
+                logger.info("[%s] returned %d artists", adapter.platform_name, len(result))
                 all_artists.extend(result)
+            elif isinstance(result, BaseException):
+                logger.error("[%s] artist search failed: %s", adapter.platform_name, result)
 
         # Group same artists across platforms
         groups = self._alias_resolver.group_same_artists(all_artists)
@@ -59,9 +65,12 @@ class AggregationService:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         all_tracks = []
-        for result in results:
+        for adapter, result in zip(adapters, results):
             if isinstance(result, list):
+                logger.info("[%s] returned %d tracks", adapter.platform_name, len(result))
                 all_tracks.extend(result)
+            elif isinstance(result, BaseException):
+                logger.error("[%s] track search failed: %s", adapter.platform_name, result)
 
         return all_tracks
 

@@ -129,11 +129,31 @@ class CrosslinkService:
                     pass
 
         if original_meta is None:
+            # Fallback: search by platform_id across all platforms
+            fallback_query = platform_id.replace("/", " ").replace("-", " ")
+            logger.info("Source track fetch failed, fallback search: %s", fallback_query)
+            fingerprints = await self._aggregation.search_tracks_deduped(fallback_query, limit=10)
+
+            if not fingerprints:
+                return {
+                    "type": "track",
+                    "original": {"platform": platform, "platform_id": platform_id, "url": parsed['url']},
+                    "matches": [],
+                    "error": f"Could not fetch track from {platform} (API key may be missing)",
+                }
+
+            # Use best fingerprint as original
+            best_fp = fingerprints[0]
+            best_source = best_fp.best_source
+            if best_source:
+                original_meta = best_source
+
+        if original_meta is None:
             return {
                 "type": "track",
                 "original": {"platform": platform, "platform_id": platform_id, "url": parsed['url']},
                 "matches": [],
-                "error": "Could not fetch metadata from source platform",
+                "error": f"Could not fetch track from {platform}",
             }
 
         # 2. Search across all platforms using title + artist
@@ -187,12 +207,23 @@ class CrosslinkService:
         original_artist = await self._aggregation.get_artist(platform, platform_id)
 
         if original_artist is None:
-            return {
-                "type": "artist",
-                "original": {"platform": platform, "platform_id": platform_id, "url": parsed['url']},
-                "matches": [],
-                "error": "Could not fetch artist from source platform",
-            }
+            # Fallback: try searching by platform_id as query on ALL platforms
+            # (e.g., YouTube @handle or channel name)
+            fallback_query = platform_id.lstrip("@").replace("/", " ")
+            logger.info("Source platform failed, fallback search: %s", fallback_query)
+            artists = await self._aggregation.search_artists(fallback_query, limit=10)
+
+            if not artists:
+                return {
+                    "type": "artist",
+                    "original": {"platform": platform, "platform_id": platform_id, "url": parsed['url']},
+                    "matches": [],
+                    "error": f"Could not fetch artist from {platform} (API key may be missing)",
+                }
+
+            # Use the best search result as the "original"
+            best = artists[0]
+            original_artist = best
 
         # 2. Search across all platforms using name + aliases
         search_query = original_artist.name

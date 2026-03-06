@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../core/di/service_locator.dart';
+import '../../core/services/oauth_service.dart';
+import '../../core/services/user_service.dart';
+import '../blocs/connections/connections_bloc.dart';
+import '../blocs/connections/connections_event.dart';
+import '../blocs/connections/connections_state.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -61,17 +69,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(),
           const _SettingsSection(title: 'Platform Accounts'),
-          ListTile(
-            leading: const Icon(Icons.music_note),
-            title: const Text('Spotify'),
-            subtitle: const Text('Not connected'),
-            trailing: TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Spotify connection coming soon')),
+          BlocProvider(
+            create: (_) {
+              final bloc = ConnectionsBloc(
+                getIt<OAuthService>(),
+                getIt<UserService>().userId,
+              );
+              bloc.add(const ConnectionsLoad());
+              return bloc;
+            },
+            child: BlocBuilder<ConnectionsBloc, ConnectionsState>(
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    _platformTile(context, state, 'spotify', 'Spotify', Icons.music_note, const Color(0xFF1DB954)),
+                    _platformTile(context, state, 'youtube', 'YouTube', Icons.play_circle_fill, const Color(0xFFFF0000)),
+                    _platformTile(context, state, 'tidal', 'Tidal', Icons.waves, Colors.white70),
+                  ],
                 );
               },
-              child: const Text('Connect'),
             ),
           ),
           const Divider(),
@@ -173,6 +189,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _qualityOption(ctx, 'High', '256 kbps - best quality'),
         ],
       ),
+    );
+  }
+
+  Widget _platformTile(BuildContext context, ConnectionsState state, String platform, String name, IconData icon, Color color) {
+    final connected = state.isConnected(platform);
+    final conn = state.getConnection(platform);
+    final isConnecting = state.status == ConnectionsStatus.connecting && state.connectingPlatform == platform;
+
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(name),
+      subtitle: Text(
+        isConnecting
+            ? 'Connecting...'
+            : connected
+                ? 'Connected as ${conn?.displayName ?? name}'
+                : 'Not connected',
+      ),
+      trailing: isConnecting
+          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+          : connected
+              ? TextButton(
+                  onPressed: () {
+                    context.read<ConnectionsBloc>().add(ConnectionsDisconnect(platform));
+                  },
+                  child: const Text('Disconnect', style: TextStyle(color: Colors.redAccent)),
+                )
+              : TextButton(
+                  onPressed: () {
+                    context.read<ConnectionsBloc>().add(ConnectionsConnect(platform));
+                  },
+                  child: const Text('Connect'),
+                ),
     );
   }
 

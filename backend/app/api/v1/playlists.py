@@ -52,8 +52,12 @@ async def list_playlists(
     user_id: str = Query(...),
     db: AsyncSession = Depends(get_db),
 ):
+    try:
+        uid = uuid.UUID(user_id)
+    except ValueError:
+        return []
     result = await db.execute(
-        select(Playlist).where(Playlist.user_id == uuid.UUID(user_id)).order_by(Playlist.updated_at.desc())
+        select(Playlist).where(Playlist.user_id == uid).order_by(Playlist.updated_at.desc())
     )
     playlists = result.scalars().all()
 

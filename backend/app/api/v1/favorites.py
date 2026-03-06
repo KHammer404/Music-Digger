@@ -67,7 +67,11 @@ async def list_favorites(
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Favorite).where(Favorite.user_id == uuid.UUID(user_id))
+    try:
+        uid = uuid.UUID(user_id)
+    except ValueError:
+        return []
+    query = select(Favorite).where(Favorite.user_id == uid)
     if target_type:
         query = query.where(Favorite.target_type == target_type)
     query = query.order_by(Favorite.created_at.desc()).offset(offset).limit(limit)
