@@ -30,11 +30,13 @@ class PlaybackManager {
   final _playingController = StreamController<bool>.broadcast();
   final _positionController = StreamController<Duration>.broadcast();
   final _durationController = StreamController<Duration?>.broadcast();
+  final _completedController = StreamController<void>.broadcast();
 
   Stream<Track?> get trackStream => _trackController.stream;
   Stream<bool> get playingStream => _playingController.stream;
   Stream<Duration> get positionStream => _audioPlayer.positionStream;
   Stream<Duration?> get durationStream => _audioPlayer.durationStream;
+  Stream<void> get completedStream => _completedController.stream;
 
   Track? get currentTrack => _currentTrack;
   bool get isPlaying => _audioPlayer.playing;
@@ -46,7 +48,12 @@ class PlaybackManager {
     _audioPlayer.playerStateStream.listen((state) {
       _playingController.add(state.playing);
       if (state.processingState == ProcessingState.completed) {
-        next();
+        if (_queue.isNotEmpty) {
+          next();
+        } else {
+          // No queue — signal completion for rabbit hole
+          _completedController.add(null);
+        }
       }
     });
   }
@@ -206,5 +213,6 @@ class PlaybackManager {
     _playingController.close();
     _positionController.close();
     _durationController.close();
+    _completedController.close();
   }
 }

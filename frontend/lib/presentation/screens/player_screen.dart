@@ -141,6 +141,25 @@ class PlayerScreen extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
+                // Rabbit hole reason
+                if (state.rabbitHoleEnabled && state.rabbitHoleReason != null) ...[
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C5CE7).withAlpha(30),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      state.rabbitHoleReason!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6C5CE7),
+                      ),
+                    ),
+                  ),
+                ],
+
                 // Controls
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -164,18 +183,30 @@ class PlayerScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: Theme.of(context).colorScheme.primary,
                       ),
-                      child: IconButton(
-                        icon: Icon(
-                          state.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                        ),
-                        iconSize: 48,
-                        color: Colors.white,
-                        onPressed: () => context
-                            .read<PlayerBloc>()
-                            .add(const PlayerTogglePlayPause()),
-                      ),
+                      child: state.rabbitHoleLoading
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                            )
+                          : IconButton(
+                              icon: Icon(
+                                state.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                              ),
+                              iconSize: 48,
+                              color: Colors.white,
+                              onPressed: () => context
+                                  .read<PlayerBloc>()
+                                  .add(const PlayerTogglePlayPause()),
+                            ),
                     ),
                     const SizedBox(width: 16),
                     IconButton(
@@ -185,14 +216,38 @@ class PlayerScreen extends StatelessWidget {
                           context.read<PlayerBloc>().add(const PlayerNext()),
                     ),
                     const SizedBox(width: 16),
+                    // Rabbit hole toggle
                     IconButton(
-                      icon: const Icon(Icons.repeat),
+                      icon: Icon(
+                        state.rabbitHoleEnabled
+                            ? Icons.explore
+                            : Icons.explore_outlined,
+                      ),
                       iconSize: 28,
-                      color: Colors.grey,
-                      onPressed: () {},
+                      color: state.rabbitHoleEnabled
+                          ? const Color(0xFF6C5CE7)
+                          : Colors.grey,
+                      tooltip: 'Rabbit Hole Radio',
+                      onPressed: () => context
+                          .read<PlayerBloc>()
+                          .add(const PlayerToggleRabbitHole()),
                     ),
                   ],
                 ),
+
+                // Rabbit hole indicator
+                if (state.rabbitHoleEnabled)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      'Rabbit Hole ON',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: const Color(0xFF6C5CE7).withAlpha(180),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
 
                 const SizedBox(height: 48),
               ],

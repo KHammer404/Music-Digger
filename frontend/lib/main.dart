@@ -6,6 +6,7 @@ import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 import 'config/routes.dart';
 import 'config/theme.dart';
 import 'core/di/service_locator.dart';
+import 'core/network/api_client.dart';
 import 'core/network/connectivity_service.dart';
 import 'core/services/user_service.dart';
 import 'l10n/app_localizations.dart';
@@ -27,7 +28,7 @@ class MusicDiggerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => PlayerBloc(PlaybackManager()),
+      create: (_) => PlayerBloc(PlaybackManager(), getIt<ApiClient>()),
       child: MaterialApp.router(
         title: 'Music Digger',
         debugShowCheckedModeBanner: false,

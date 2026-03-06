@@ -50,6 +50,15 @@ class PlayerStop extends PlayerEvent {
   const PlayerStop();
 }
 
+// Rabbit hole radio
+class PlayerToggleRabbitHole extends PlayerEvent {
+  const PlayerToggleRabbitHole();
+}
+
+class PlayerRabbitHoleNext extends PlayerEvent {
+  const PlayerRabbitHoleNext();
+}
+
 // Internal events driven by stream subscriptions
 class PlayerTrackChanged extends PlayerEvent {
   final Track? track;

@@ -80,6 +80,9 @@ class _HomeContent extends StatelessWidget {
           // Hero banner
           const _HeroBanner(),
 
+          // Crosslink input
+          const _CrosslinkInput(),
+
           // Discoveries / Trending section
           if (state.discoveries.isNotEmpty) ...[
             _SectionHeader(
@@ -324,6 +327,42 @@ class _QuickActions extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CrosslinkInput extends StatelessWidget {
+  const _CrosslinkInput();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: InkWell(
+        onTap: () => context.push('/crosslink'),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1A2E),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.withAlpha(50)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.link, color: Color(0xFF6C5CE7), size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Paste a music link to find it everywhere...',
+                  style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios, color: Colors.grey[600], size: 16),
+            ],
+          ),
+        ),
       ),
     );
   }

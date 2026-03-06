@@ -102,6 +102,36 @@ class RemoteDataSource {
         .toList();
   }
 
+  Future<Map<String, dynamic>> crosslink({required String url}) async {
+    final response = await _apiClient.post('/crosslink', data: {'url': url});
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> getUnifiedArtist({
+    required String platform,
+    required String platformId,
+    int trackLimit = 50,
+  }) async {
+    final response = await _apiClient.get(
+      '/artists/unified/$platform:$platformId',
+      queryParameters: {'track_limit': trackLimit},
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> getRadioNext({
+    required String currentArtistName,
+    List<String> playedArtistNames = const [],
+    List<String> playedPlatforms = const [],
+  }) async {
+    final response = await _apiClient.post('/radio/next', data: {
+      'current_artist_name': currentArtistName,
+      'played_artist_names': playedArtistNames,
+      'played_platforms': playedPlatforms,
+    });
+    return response.data as Map<String, dynamic>;
+  }
+
   Future<List<Map<String, dynamic>>> getDiscovery({
     List<String>? seeds,
     int limit = 30,

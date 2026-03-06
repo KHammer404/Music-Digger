@@ -8,6 +8,12 @@ class PlayerState extends Equatable {
   final Duration position;
   final Duration? duration;
   final List<Track> queue;
+  // Rabbit hole radio
+  final bool rabbitHoleEnabled;
+  final bool rabbitHoleLoading;
+  final String? rabbitHoleReason;
+  final List<String> playedArtistNames;
+  final List<String> playedPlatforms;
 
   const PlayerState({
     this.currentTrack,
@@ -15,6 +21,11 @@ class PlayerState extends Equatable {
     this.position = Duration.zero,
     this.duration,
     this.queue = const [],
+    this.rabbitHoleEnabled = false,
+    this.rabbitHoleLoading = false,
+    this.rabbitHoleReason,
+    this.playedArtistNames = const [],
+    this.playedPlatforms = const [],
   });
 
   bool get hasTrack => currentTrack != null;
@@ -33,6 +44,11 @@ class PlayerState extends Equatable {
     Duration? position,
     Duration? duration,
     List<Track>? queue,
+    bool? rabbitHoleEnabled,
+    bool? rabbitHoleLoading,
+    String? rabbitHoleReason,
+    List<String>? playedArtistNames,
+    List<String>? playedPlatforms,
   }) {
     return PlayerState(
       currentTrack: currentTrack ?? this.currentTrack,
@@ -40,6 +56,11 @@ class PlayerState extends Equatable {
       position: position ?? this.position,
       duration: duration ?? this.duration,
       queue: queue ?? this.queue,
+      rabbitHoleEnabled: rabbitHoleEnabled ?? this.rabbitHoleEnabled,
+      rabbitHoleLoading: rabbitHoleLoading ?? this.rabbitHoleLoading,
+      rabbitHoleReason: rabbitHoleReason ?? this.rabbitHoleReason,
+      playedArtistNames: playedArtistNames ?? this.playedArtistNames,
+      playedPlatforms: playedPlatforms ?? this.playedPlatforms,
     );
   }
 
@@ -50,5 +71,9 @@ class PlayerState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [currentTrack, isPlaying, position, duration, queue];
+  List<Object?> get props => [
+        currentTrack, isPlaying, position, duration, queue,
+        rabbitHoleEnabled, rabbitHoleLoading, rabbitHoleReason,
+        playedArtistNames, playedPlatforms,
+      ];
 }

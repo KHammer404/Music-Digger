@@ -79,6 +79,12 @@ class _ArtistContentState extends State<_ArtistContent> {
     super.dispose();
   }
 
+  static String _formatCount(int count) {
+    if (count >= 1000000) return '${(count / 1000000).toStringAsFixed(1)}M';
+    if (count >= 1000) return '${(count / 1000).toStringAsFixed(1)}K';
+    return count.toString();
+  }
+
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -147,6 +153,32 @@ class _ArtistContentState extends State<_ArtistContent> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Platform presences (unified profile)
+                if (state.platformPresences.isNotEmpty) ...[
+                  SizedBox(
+                    height: 48,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: state.platformPresences.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final p = state.platformPresences[index];
+                        return Chip(
+                          avatar: SourceBadge(platform: p.platform, size: 18),
+                          label: Text(
+                            p.followerCount != null
+                                ? '${_formatCount(p.followerCount!)}'
+                                : p.name,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
                 // Aliases
                 if (artist.aliases.isNotEmpty) ...[
                   Wrap(
@@ -174,8 +206,8 @@ class _ArtistContentState extends State<_ArtistContent> {
                   const SizedBox(height: 12),
                 ],
 
-                // Platform track counts
-                if (artist.platformTrackCounts.isNotEmpty) ...[
+                // Platform track counts (fallback when no unified data)
+                if (state.platformPresences.isEmpty && artist.platformTrackCounts.isNotEmpty) ...[
                   Wrap(
                     spacing: 12,
                     runSpacing: 8,

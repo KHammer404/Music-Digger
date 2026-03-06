@@ -6,12 +6,45 @@ import '../home/home_state.dart';
 
 enum ArtistStatus { initial, loading, loaded, error }
 
+class PlatformPresence extends Equatable {
+  final String platform;
+  final String platformId;
+  final String name;
+  final String? url;
+  final String? imageUrl;
+  final int? followerCount;
+
+  const PlatformPresence({
+    required this.platform,
+    required this.platformId,
+    required this.name,
+    this.url,
+    this.imageUrl,
+    this.followerCount,
+  });
+
+  factory PlatformPresence.fromJson(Map<String, dynamic> json) {
+    return PlatformPresence(
+      platform: json['platform'] as String? ?? '',
+      platformId: json['platform_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      url: json['url'] as String?,
+      imageUrl: json['image_url'] as String?,
+      followerCount: json['follower_count'] as int?,
+    );
+  }
+
+  @override
+  List<Object?> get props => [platform, platformId];
+}
+
 class ArtistState extends Equatable {
   final ArtistStatus status;
   final Artist? artist;
   final List<Track> tracks;
   final int totalTracks;
   final List<RecommendedArtist> similarArtists;
+  final List<PlatformPresence> platformPresences;
   final String? errorMessage;
   final Object? error;
   final bool isLoadingMore;
@@ -23,6 +56,7 @@ class ArtistState extends Equatable {
     this.tracks = const [],
     this.totalTracks = 0,
     this.similarArtists = const [],
+    this.platformPresences = const [],
     this.errorMessage,
     this.error,
     this.isLoadingMore = false,
@@ -35,6 +69,7 @@ class ArtistState extends Equatable {
     List<Track>? tracks,
     int? totalTracks,
     List<RecommendedArtist>? similarArtists,
+    List<PlatformPresence>? platformPresences,
     String? errorMessage,
     Object? error,
     bool? isLoadingMore,
@@ -46,6 +81,7 @@ class ArtistState extends Equatable {
       tracks: tracks ?? this.tracks,
       totalTracks: totalTracks ?? this.totalTracks,
       similarArtists: similarArtists ?? this.similarArtists,
+      platformPresences: platformPresences ?? this.platformPresences,
       errorMessage: errorMessage,
       error: error,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -54,5 +90,5 @@ class ArtistState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, artist, tracks, totalTracks, similarArtists, errorMessage, isLoadingMore, hasReachedMax];
+  List<Object?> get props => [status, artist, tracks, totalTracks, similarArtists, platformPresences, errorMessage, isLoadingMore, hasReachedMax];
 }

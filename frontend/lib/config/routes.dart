@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../presentation/screens/artist_detail_screen.dart';
+import '../presentation/screens/crosslink_screen.dart';
 import '../presentation/screens/home_screen.dart';
+import '../presentation/screens/import_playlists_screen.dart';
 import '../presentation/screens/search_screen.dart';
 import '../presentation/screens/library_screen.dart';
 import '../presentation/screens/player_screen.dart';
@@ -54,7 +56,46 @@ final router = GoRouter(
         ),
       ],
     ),
-    // Full-screen routes (outside shell) with slide-up transition
+    // Full-screen routes (outside shell)
+    GoRoute(
+      path: '/import-playlists',
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) {
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: const ImportPlaylistsScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+              child: child,
+            );
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/crosslink',
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) {
+        final url = state.uri.queryParameters['url'];
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: CrosslinkScreen(initialUrl: url),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+              child: child,
+            );
+          },
+        );
+      },
+    ),
     GoRoute(
       path: '/artist/:artistId',
       parentNavigatorKey: _rootNavigatorKey,

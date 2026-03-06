@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../../data/models/track_model.dart';
 import '../../../data/repositories/search_repository.dart';
+import '../../../domain/entities/artist.dart';
 import '../home/home_state.dart';
 import 'artist_event.dart';
 import 'artist_state.dart';
@@ -24,6 +26,63 @@ class ArtistBloc extends Bloc<ArtistEvent, ArtistState> {
     _currentArtistId = event.artistId;
     emit(const ArtistState(status: ArtistStatus.loading));
 
+    final parts = event.artistId.split(':');
+    final platform = parts.isNotEmpty ? parts[0] : '';
+    final platformId = parts.length > 1 ? parts.sublist(1).join(':') : '';
+
+    // Try unified endpoint first
+    try {
+      final resp = await _apiClient.get('/artists/unified/$platform:$platformId');
+      final data = resp.data as Map<String, dynamic>;
+
+      if (data.containsKey('error')) {
+        // Fall back to standard endpoint
+        await _loadStandard(event, emit);
+        return;
+      }
+
+      // Parse unified response
+      final artist = Artist(
+        id: event.artistId,
+        name: data['name'] as String? ?? '',
+        imageUrl: data['image_url'] as String?,
+        description: data['description'] as String?,
+        aliases: (data['aliases'] as List?)?.cast<String>() ?? [],
+        platformTrackCounts: {},
+      );
+
+      final tracks = (data['tracks'] as List? ?? [])
+          .map((t) => TrackModel.fromJson(t as Map<String, dynamic>).toEntity())
+          .toList();
+
+      final platformPresences = (data['platforms'] as List? ?? [])
+          .map((p) => PlatformPresence.fromJson(p as Map<String, dynamic>))
+          .toList();
+
+      emit(ArtistState(
+        status: ArtistStatus.loaded,
+        artist: artist,
+        tracks: tracks,
+        totalTracks: data['total_tracks'] as int? ?? tracks.length,
+        platformPresences: platformPresences,
+      ));
+
+      // Auto-load similar artists
+      add(ArtistLoadSimilar(
+        artist.name,
+        platform: platform,
+        platformId: platformId,
+      ));
+    } catch (_) {
+      // Fallback to standard endpoint
+      await _loadStandard(event, emit);
+    }
+  }
+
+  Future<void> _loadStandard(
+    ArtistLoadRequested event,
+    Emitter<ArtistState> emit,
+  ) async {
     try {
       final result = await _searchRepository.getArtist(
         artistId: event.artistId,
